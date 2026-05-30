@@ -4,6 +4,7 @@ import java.awt.event.*;
 
 public class AddProductPage extends JFrame implements ActionListener{
     JDialog addProductDialog= new JDialog();
+
     JLabel title, productName, initQuantity, uploadPic;
     RoundedTextField enterProductName, enterInitQuantity;
     JButton uploadSamplePic, done;
@@ -39,9 +40,10 @@ public class AddProductPage extends JFrame implements ActionListener{
         productPanel= new JPanel(new FlowLayout(FlowLayout.CENTER));
         productPanel.setBackground(AppColors.pinkishOrange);
 
-        enterProductName= new RoundedTextField(50);
+        enterProductName= new RoundedTextField(60);
         enterProductName.setPreferredSize(new Dimension(350, 60));
         enterProductName.setFont(new Font("Canva Sans", Font.PLAIN, 20));
+        enterProductName.setHorizontalAlignment(JTextField.CENTER);
         enterProductName.setForeground(AppColors.darkRed);
         enterProductName.setBackground(AppColors.lightPinkishOrange);
 
@@ -51,9 +53,10 @@ public class AddProductPage extends JFrame implements ActionListener{
         quantityPanel= new JPanel(new FlowLayout(FlowLayout.CENTER));
         quantityPanel.setBackground(AppColors.pinkishOrange);
 
-        enterInitQuantity= new RoundedTextField(50);
+        enterInitQuantity= new RoundedTextField(60);
         enterInitQuantity.setPreferredSize(new Dimension(350, 60));
         enterInitQuantity.setFont(new Font("Canva Sans", Font.PLAIN, 20));
+        enterInitQuantity.setHorizontalAlignment(JTextField.CENTER);
         enterInitQuantity.setForeground(AppColors.darkRed);
         enterInitQuantity.setBackground(AppColors.lightPinkishOrange);
 
@@ -63,7 +66,7 @@ public class AddProductPage extends JFrame implements ActionListener{
         uploadPanel= new JPanel(new FlowLayout(FlowLayout.CENTER));
         uploadPanel.setBackground(AppColors.pinkishOrange);
 
-        uploadSamplePic= new RoundedButton("UPLOAD SAMPLE PIC", 50);
+        uploadSamplePic= new RoundedButton("UPLOAD SAMPLE PIC", 60);
         uploadSamplePic.setPreferredSize(new Dimension(350, 60));
         uploadSamplePic.setForeground(AppColors.grayRed);
         uploadSamplePic.setBackground(AppColors.lightPinkishOrange);
@@ -75,7 +78,7 @@ public class AddProductPage extends JFrame implements ActionListener{
         donePanel= new JPanel(new FlowLayout(FlowLayout.CENTER));
         donePanel.setBackground(AppColors.pinkishOrange);
 
-        done= new RoundedButton("DONE", 50);
+        done= new RoundedButton("DONE", 60);
         done.setPreferredSize(new Dimension(350, 60));
         done.setFont(new Font("Canva Sans", Font.BOLD, 20));
         done.setForeground(AppColors.darkRed);

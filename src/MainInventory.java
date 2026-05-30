@@ -3,7 +3,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.Font;
 import java.awt.FontFormatException;
-import java.awt.Graphics.*;
+import java.awt.Graphics;
 import java.io.IOException;
 
 public class MainInventory extends JFrame implements ActionListener{
@@ -27,8 +27,9 @@ public class MainInventory extends JFrame implements ActionListener{
 
     JPanel top, middle, productsPanel, mainContent;
     JLabel inventory, doughflow;
-    JTextField search;
-    JButton editProd, addProd;
+    JTextField searchBox;
+    RoundedButton editProd, addProd;
+    RoundedPanel searchPanel;
     JScrollPane scrollPane;
 
     MainInventory() {
@@ -80,12 +81,45 @@ public class MainInventory extends JFrame implements ActionListener{
         JPanel leftSide = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JPanel rightSide = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
-        search = new JTextField("SEARCH BAR", 20);
+        searchPanel= new RoundedPanel(60);
+        searchPanel.setLayout(new BorderLayout());
+        searchPanel.setPreferredSize(new Dimension(320, 50));
+        searchPanel.setBackground(AppColors.pinkishOrange);
 
-        editProd = new JButton("EDIT PRODUCT");
-        addProd = new JButton("+ ADD NEW PRODUCT");
+        searchBox = new JTextField(20);
+        searchBox.setText("SEARCH");
+        searchBox.setForeground(AppColors.darkRed);
+        searchBox.setFont(new Font("PoppinsRegular", Font.PLAIN, 15));
+        searchBox.setOpaque(false);
+        searchBox.setBorder(null);
 
-        leftSide.add(search);
+        ImageIcon searchIcon= new ImageIcon("search2.png");
+        Image searchImg= searchIcon.getImage();
+        Image resizedSearchImg= searchImg.getScaledInstance(30, 30, Image.SCALE_SMOOTH);
+        ImageIcon resizedSearchIcon= new ImageIcon(resizedSearchImg);
+        JButton searchIconBtn= new JButton(resizedSearchIcon);
+        searchIconBtn.setContentAreaFilled(false);
+        searchIconBtn.setBorderPainted(false);
+        searchIconBtn.setFocusPainted(false);
+        searchIconBtn.setBorder(BorderFactory.createEmptyBorder(0, 100, 0, 0));
+
+        searchPanel.add(searchBox, BorderLayout.WEST);
+        searchPanel.add(searchIconBtn, BorderLayout.EAST);
+
+        leftSide.add(searchPanel);
+
+
+        editProd = new RoundedButton("EDIT PRODUCT", 60);
+        editProd.setPreferredSize(new Dimension(180, 50));
+        editProd.setForeground(AppColors.darkRed);
+        editProd.setBackground(AppColors.pinkishOrange);
+        editProd.setFont(new Font("PoppinsBold", Font.PLAIN, 15));
+
+        addProd = new RoundedButton("+ ADD PRODUCT", 60);
+        addProd.setPreferredSize(new Dimension(180, 50));
+        addProd.setForeground(AppColors.darkRed);
+        addProd.setBackground(AppColors.pinkishOrange);
+        addProd.setFont(new Font("PoppinsBold", Font.PLAIN, 15));
 
         rightSide.add(editProd);
         rightSide.add(addProd);
@@ -108,30 +142,34 @@ public class MainInventory extends JFrame implements ActionListener{
 
 
         //PRODUCT CARDS
-        for (int i = 1; i <= 8; i++) {
+        for (int i = 1; i <= 12; i++) {
 
-            JPanel card = new JPanel();
+            RoundedPanel card = new RoundedPanel(50);
             card.setPreferredSize(new Dimension(150, 150));
-            card.setBackground(new Color(255, 220, 220));
+            card.setBackground(AppColors.lightPinkishOrange);
 
             card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
 
             JLabel image = new JLabel("IMAGE");
+            image.setFont(new Font("PoppinsRegular", Font.PLAIN, 18));
             image.setAlignmentX(Component.CENTER_ALIGNMENT);
 
             JLabel name = new JLabel("Product Name");
-            name.setFont(new Font("Arial", Font.BOLD, 18));
+            name.setFont(new Font("PoppinsBold", Font.BOLD, 18));
+            name.setForeground(AppColors.darkRed);
             name.setAlignmentX(Component.CENTER_ALIGNMENT);
 
             JLabel amount = new JLabel("Amount");
-            amount.setFont(new Font("Arial", Font.BOLD, 18));
+            amount.setFont(new Font("PoppinsRegular", Font.PLAIN, 18));
+            amount.setForeground(AppColors.darkRed);
             amount.setAlignmentX(Component.CENTER_ALIGNMENT);
 
             card.add(Box.createVerticalStrut(20));
             card.add(image);
-            card.add(Box.createVerticalStrut(10));
+            card.add(Box.createVerticalStrut(40));
             card.add(name);
             card.add(amount);
+            card.setDrawBorder(false);
 
             productsPanel.add(card);
         }
