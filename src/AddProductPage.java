@@ -5,52 +5,94 @@ import java.awt.event.*;
 public class AddProductPage extends JFrame implements ActionListener{
     JDialog addProductDialog= new JDialog();
     JLabel title, productName, initQuantity, uploadPic;
-    JTextField enterProductName, enterInitQuantity;
+    RoundedTextField enterProductName, enterInitQuantity;
     JButton uploadSamplePic, done;
+    JPanel productPanel, quantityPanel, uploadPanel, donePanel;
 
     AddProductPage(){
         addProductDialog.setSize(400, 600);
         addProductDialog.setLocationRelativeTo(null);
         addProductDialog.setLayout(new GridLayout(8,1));
+        addProductDialog.getContentPane().setBackground(AppColors.pinkishOrange);
 
         title= new JLabel("ADD NEW PRODUCT");
-        title.setForeground(Color.pink);
-        title.setFont(new Font("Arial", Font.BOLD, 30));
-        title.setBorder(BorderFactory.createEmptyBorder(10, 40, 10, 30));
+        title.setForeground(Color.white);
+        title.setFont(MainInventory.LazyDog.deriveFont(35f));
+        title.setBorder(BorderFactory.createEmptyBorder(40, 40, 10, 30));
 
         productName= new JLabel("Product Name:");
-        productName.setForeground(Color.pink);
-        productName.setFont(new Font("Arial", Font.PLAIN, 20));
+        productName.setForeground(AppColors.darkRed);
+        productName.setFont(new Font("Canva Sans", Font.BOLD, 20));
+        productName.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
 
         initQuantity= new JLabel("Initial Quantity:");
-        initQuantity.setForeground(Color.pink);
-        initQuantity.setFont(new Font("Arial", Font.PLAIN, 20));
+        initQuantity.setForeground(AppColors.darkRed);
+        initQuantity.setFont(new Font("Canva Sans", Font.BOLD, 20));
+        initQuantity.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
 
         uploadPic= new JLabel("Upload Picture:");
-        uploadPic.setForeground(Color.pink);
-        uploadPic.setFont(new Font("Arial", Font.PLAIN, 20));
+        uploadPic.setForeground(AppColors.darkRed);
+        uploadPic.setFont(new Font("Canva Sans", Font.BOLD, 20));
+        uploadPic.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
 
-        enterProductName= new JTextField(40);
-        enterProductName.setFont(new Font("Arial", Font.PLAIN, 20));
+        //this part implements the rounding of the add product txtfield
+        productPanel= new JPanel(new FlowLayout(FlowLayout.CENTER));
+        productPanel.setBackground(AppColors.pinkishOrange);
 
-        enterInitQuantity= new JTextField(40);
-        enterInitQuantity.setFont(new Font("Arial", Font.PLAIN, 20));
+        enterProductName= new RoundedTextField(50);
+        enterProductName.setPreferredSize(new Dimension(350, 60));
+        enterProductName.setFont(new Font("Canva Sans", Font.PLAIN, 20));
+        enterProductName.setForeground(AppColors.darkRed);
+        enterProductName.setBackground(AppColors.lightPinkishOrange);
 
-        uploadSamplePic= new JButton("UPLOAD SAMPLE PIC");
+        productPanel.add(enterProductName);
+
+        //this part implements the rounding of the init quantity txtfield
+        quantityPanel= new JPanel(new FlowLayout(FlowLayout.CENTER));
+        quantityPanel.setBackground(AppColors.pinkishOrange);
+
+        enterInitQuantity= new RoundedTextField(50);
+        enterInitQuantity.setPreferredSize(new Dimension(350, 60));
+        enterInitQuantity.setFont(new Font("Canva Sans", Font.PLAIN, 20));
+        enterInitQuantity.setForeground(AppColors.darkRed);
+        enterInitQuantity.setBackground(AppColors.lightPinkishOrange);
+
+        quantityPanel.add(enterInitQuantity);
+
+        //this part implements the upload pic btn
+        uploadPanel= new JPanel(new FlowLayout(FlowLayout.CENTER));
+        uploadPanel.setBackground(AppColors.pinkishOrange);
+
+        uploadSamplePic= new RoundedButton("UPLOAD SAMPLE PIC", 50);
+        uploadSamplePic.setPreferredSize(new Dimension(350, 60));
+        uploadSamplePic.setForeground(AppColors.grayRed);
+        uploadSamplePic.setBackground(AppColors.lightPinkishOrange);
         uploadSamplePic.addActionListener(this);
 
-        done= new JButton("DONE");
-        done.setForeground(Color.pink);
+        uploadPanel.add(uploadSamplePic);
+
+        //this part implements the done btn
+        donePanel= new JPanel(new FlowLayout(FlowLayout.CENTER));
+        donePanel.setBackground(AppColors.pinkishOrange);
+
+        done= new RoundedButton("DONE", 50);
+        done.setPreferredSize(new Dimension(350, 60));
+        done.setFont(new Font("Canva Sans", Font.BOLD, 20));
+        done.setForeground(AppColors.darkRed);
+        done.setBackground(AppColors.lightPinkishOrange);
         done.addActionListener(this);
+
+        donePanel.add(done);
+        //end of elements
 
         addProductDialog.add(title);
         addProductDialog.add(productName);
-        addProductDialog.add(enterProductName);
+        addProductDialog.add(productPanel);
         addProductDialog.add(initQuantity);
-        addProductDialog.add(enterInitQuantity);
+        addProductDialog.add(quantityPanel);
         addProductDialog.add(uploadPic);
-        addProductDialog.add(uploadSamplePic);
-        addProductDialog.add(done);
+        addProductDialog.add(uploadPanel);
+        addProductDialog.add(donePanel);
 
         addProductDialog.setVisible(true);
     }

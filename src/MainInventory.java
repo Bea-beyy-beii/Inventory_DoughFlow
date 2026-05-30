@@ -1,8 +1,29 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.Graphics.*;
+import java.io.IOException;
 
 public class MainInventory extends JFrame implements ActionListener{
+    //external fonts used in the program
+    public static Font LazyDog;
+    public static Font PoppinsBold;
+    public static Font PoppinsRegular;
+
+    public static Font loadFont(String path) {
+        try {
+            Font font = Font.createFont(Font.TRUETYPE_FONT, MainInventory.class.getResourceAsStream(path));
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(font);
+            return font;
+
+        } catch (FontFormatException | IOException e) {
+        }
+
+        return new Font("SansSerif", Font.PLAIN, 12); // Default Font if error
+    }
 
     JPanel top, middle, productsPanel, mainContent;
     JLabel inventory, doughflow;
@@ -26,12 +47,12 @@ public class MainInventory extends JFrame implements ActionListener{
         top.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         inventory = new JLabel("INVENTORY");
-        inventory.setFont(new Font("Arial", Font.BOLD, 50));
-        inventory.setForeground(Color.pink);
+        inventory.setFont(MainInventory.LazyDog.deriveFont(70f));
+        inventory.setForeground(AppColors.darkRed);
 
         doughflow = new JLabel("DOUGH FLOW");
-        doughflow.setFont(new Font("Arial", Font.BOLD, 30));
-        doughflow.setForeground(Color.pink);
+        doughflow.setFont(new Font("LazyDog", Font.BOLD, 30));
+        doughflow.setForeground(AppColors.grayRed);
 
         top.add(inventory, BorderLayout.WEST);
         top.add(doughflow, BorderLayout.EAST);
@@ -148,6 +169,10 @@ public class MainInventory extends JFrame implements ActionListener{
     }
 
     public static void main(String[] args) {
+        LazyDog = loadFont("/Fonts/LazyDog.ttf");
+        PoppinsBold = loadFont("/Fonts/Poppins-Bold.ttf");
+        PoppinsRegular = loadFont("/Fonts/Poppins-Regular.ttf");
+
         new MainInventory();
     }
 }
