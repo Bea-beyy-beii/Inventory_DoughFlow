@@ -48,11 +48,11 @@ public class MainInventory extends JFrame implements ActionListener{
         top.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         inventory = new JLabel("INVENTORY");
-        inventory.setFont(MainInventory.LazyDog.deriveFont(70f));
+        inventory.setFont(MainInventory.LazyDog.deriveFont(60f));
         inventory.setForeground(AppColors.darkRed);
 
         doughflow = new JLabel("DOUGH FLOW");
-        doughflow.setFont(new Font("LazyDog", Font.BOLD, 30));
+        doughflow.setFont(MainInventory.LazyDog.deriveFont(40f));
         doughflow.setForeground(AppColors.grayRed);
 
         top.add(inventory, BorderLayout.WEST);
