@@ -6,7 +6,7 @@ import java.awt.FontFormatException;
 import java.awt.Graphics;
 import java.io.IOException;
 
-public class MainInventory extends JFrame implements ActionListener{
+public class MainInventory extends JPanel implements ActionListener{
     //external fonts used in the program
     public static Font LazyDog;
     public static Font PoppinsBold;
@@ -25,7 +25,7 @@ public class MainInventory extends JFrame implements ActionListener{
         return new Font("SansSerif", Font.PLAIN, 12); // Default Font if error
     }
 
-    JPanel top, middle, productsPanel, mainContent;
+    JPanel top, middle, productsPanel, mainContent, overallInventory;
     JLabel inventory, doughflow;
     JTextField searchBox;
     RoundedButton editProd, addProd;
@@ -34,10 +34,12 @@ public class MainInventory extends JFrame implements ActionListener{
 
     MainInventory() {
 
-        setTitle("Inventory Page");
+        overallInventory = new JPanel(new BorderLayout());
+
+        //setTitle("Inventory Page");
         setSize(925, 650);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
+        //setDefaultCloseOperation(EXIT_ON_CLOSE);
+        //setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
         // TOP PANEL: inventory and doughflow labels
@@ -58,7 +60,7 @@ public class MainInventory extends JFrame implements ActionListener{
         top.add(inventory, BorderLayout.WEST);
         top.add(doughflow, BorderLayout.EAST);
 
-        add(top, BorderLayout.NORTH);
+        overallInventory.add(top, BorderLayout.NORTH);
 
 
         // MAIN CONTENTS: middle panel and products panel
@@ -186,10 +188,10 @@ public class MainInventory extends JFrame implements ActionListener{
         mainContent.add(middle, BorderLayout.NORTH);
         mainContent.add(scrollPane, BorderLayout.CENTER);
 
-        add(mainContent, BorderLayout.CENTER);
+        overallInventory.add(mainContent, BorderLayout.CENTER);
 
 
-        setVisible(true);
+        overallInventory.setVisible(true);
 
         addProd.addActionListener(this);
         editProd.addActionListener(this);
@@ -211,6 +213,6 @@ public class MainInventory extends JFrame implements ActionListener{
         PoppinsBold = loadFont("/Fonts/Poppins-Bold.ttf");
         PoppinsRegular = loadFont("/Fonts/Poppins-Regular.ttf");
 
-        new MainInventory();
+        new MainInventory(); //replace name
     }
 }
