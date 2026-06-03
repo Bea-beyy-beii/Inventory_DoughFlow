@@ -2,7 +2,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class AddProductPage extends JFrame implements ActionListener{
+public class AddProductPage extends JFrame implements ActionListener, KeyListener {
+    private MainInventory parentFrame;
+    private String selectedImagePath= null;
+
     JDialog addProductDialog= new JDialog();
 
     JLabel title, productName, initQuantity, uploadPic;
@@ -10,7 +13,9 @@ public class AddProductPage extends JFrame implements ActionListener{
     JButton uploadSamplePic, done;
     JPanel productPanel, quantityPanel, uploadPanel, donePanel;
 
-    AddProductPage(){
+    AddProductPage(MainInventory parent){
+        this.parentFrame= parent;
+
         addProductDialog.setSize(400, 600);
         addProductDialog.setLocationRelativeTo(null);
         addProductDialog.setLayout(new GridLayout(8,1));
@@ -31,7 +36,7 @@ public class AddProductPage extends JFrame implements ActionListener{
         initQuantity.setFont(new Font("Canva Sans", Font.BOLD, 20));
         initQuantity.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
 
-        uploadPic= new JLabel("Upload Picture:");
+        uploadPic= new JLabel("Upload Picture :");
         uploadPic.setForeground(AppColors.darkRed);
         uploadPic.setFont(new Font("Canva Sans", Font.BOLD, 20));
         uploadPic.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
@@ -84,9 +89,13 @@ public class AddProductPage extends JFrame implements ActionListener{
         done.setForeground(AppColors.darkRed);
         done.setBackground(AppColors.lightPinkishOrange);
         done.addActionListener(this);
+        done.addKeyListener(this);
 
         donePanel.add(done);
         //end of elements
+
+        enterProductName.addKeyListener(this);
+        enterInitQuantity.addKeyListener(this);
 
         addProductDialog.add(title);
         addProductDialog.add(productName);
@@ -101,24 +110,75 @@ public class AddProductPage extends JFrame implements ActionListener{
     }
 
     public void actionPerformed(ActionEvent e){
-        if (e.getSource() == uploadSamplePic){
+        // Inside actionPerformed, replace the done button logic:
+        if (e.getSource().equals(done)) {
+            String name = enterProductName.getText().trim();
+            String qtyText = enterInitQuantity.getText().trim();
 
-            JFileChooser fileChooser = new JFileChooser();
+            if (!name.isEmpty() && !qtyText.isEmpty()) {
+                try {
+                    int qty = Integer.parseInt(qtyText);
 
-            int result = fileChooser.showOpenDialog(addProductDialog);
+                    // Use the stored image path, or "DEFAULT" if none selected
+                    String imgPath = (selectedImagePath != null) ? selectedImagePath : "DEFAULT";
 
-            if(result == JFileChooser.APPROVE_OPTION){
-                String filePath = fileChooser.getSelectedFile().getAbsolutePath();
-                JOptionPane.showMessageDialog(addProductDialog, "Selected File:\n" + filePath);
-            }
-        }
+                    ProductsDatabase.addProduct(new ProductsDatabase.Product(name, qty, imgPath));
 
-        if (e.getSource().equals(done)){
-            if (!enterProductName.getText().trim().isEmpty() && !enterInitQuantity.getText().trim().isEmpty()){
-                addProductDialog.dispose();
-            }else{
+                    addProductDialog.dispose();
+                    parentFrame.loadProductCards(); // Refresh the main inventory view
+
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(this, "Quantity must be a number!", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } else {
                 JOptionPane.showMessageDialog(this, "Please complete all fields!", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
+
+        if (e.getSource() == uploadSamplePic) {
+            JFileChooser fileChooser = new JFileChooser();
+            int result = fileChooser.showOpenDialog(addProductDialog);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                selectedImagePath = fileChooser.getSelectedFile().getAbsolutePath();
+                uploadSamplePic.setText("Image Selected"); // Visual feedback
+            }
+        }
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode()==KeyEvent.VK_ENTER) {
+            String name = enterProductName.getText().trim();
+            String qtyText = enterInitQuantity.getText().trim();
+
+            if (!name.isEmpty() && !qtyText.isEmpty()) {
+                try {
+                    int qty = Integer.parseInt(qtyText);
+
+                    // Use the stored image path, or "DEFAULT" if none selected
+                    String imgPath = (selectedImagePath != null) ? selectedImagePath : "DEFAULT";
+
+                    ProductsDatabase.addProduct(new ProductsDatabase.Product(name, qty, imgPath));
+
+                    addProductDialog.dispose();
+                    parentFrame.loadProductCards(); // Refresh the main inventory view
+
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(this, "Quantity must be a number!", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Please complete all fields!", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+
     }
 }

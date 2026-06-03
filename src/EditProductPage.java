@@ -1,16 +1,27 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.List;
 
-public class EditProductPage {
+public class EditProductPage extends JFrame{
+    private MainInventory parentFrame;
+
     JDialog editProductDialog= new JDialog();
 
     JScrollPane scrollPane;
     JLabel title;
-    JPanel header,listPanel;
+    JPanel header,listPanel, bottomPanel;
     RoundedPanel roundedRows;
+    RoundedButton btnSave;
 
-    EditProductPage(){
+    List <ProductsDatabase.Product> products= ProductsDatabase.loadProducts(); //outer.inner var= new outer.inner();
+    List<JTextField> nameFields = new ArrayList<>(); //for update checking
+    List<JTextField> quantityFields = new ArrayList<>(); //for update checking
+
+    EditProductPage(MainInventory parent){
+        this.parentFrame=parent;
+
         editProductDialog.setSize(600, 400);
         editProductDialog.setLocationRelativeTo(null);
         editProductDialog.setLayout(new BorderLayout());
@@ -31,11 +42,13 @@ public class EditProductPage {
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
         listPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        for (int i=0; i<=8; i++){
+        for (ProductsDatabase.Product p: products){
             //roundedRows serve as the oblong that contains each product's details
             roundedRows= new RoundedPanel(60);
             roundedRows.setLayout(new BorderLayout());
             roundedRows.setPreferredSize(new Dimension(500, 60));
+            roundedRows.setMaximumSize(new Dimension(550, 60));
+            //roundedRows.setMinimumSize(new Dimension(500, 60));
             roundedRows.setBackground(AppColors.lightPinkishOrange);
 
             //indivProducts groups each product's details and buttons
@@ -50,9 +63,10 @@ public class EditProductPage {
             rightSide.setOpaque(false);
 
             //component of the left side
-            JTextField productName= new JTextField(20);
+            JTextField productName= new JTextField(p.name, 15);
             productName.setFont(MainInventory.PoppinsBold.deriveFont(20f));
             productName.setForeground(AppColors.darkRed);
+            //productName.setHorizontalAlignment(JTextField.CENTER);
             productName.setBorder(null);
             productName.setOpaque(false);
 
@@ -63,22 +77,24 @@ public class EditProductPage {
             indivProducts.add(leftSide, BorderLayout.WEST);
 
             //components of the right side
-            JTextField quantity= new JTextField(3);
+            JTextField quantity= new JTextField(String.valueOf(p.quantity), 4);
             quantity.setFont(MainInventory.PoppinsRegular.deriveFont(20f));
             quantity.setForeground(AppColors.darkRed);
             quantity.setHorizontalAlignment(JTextField.CENTER);
             quantity.setBorder(null);
             quantity.setOpaque(false);
 
+            nameFields.add(productName);
+            quantityFields.add(quantity);
 
             //for add and deduct buttons
-            JButton add= new JButton("+");
-            add.setFont(MainInventory.PoppinsBold.deriveFont(30f));
-            add.setForeground(AppColors.darkRed);
-            add.setContentAreaFilled(false);
-            add.setBorderPainted(false);
-            add.setFocusPainted(false);
-            add.setOpaque(false);
+            JButton btnAdd= new JButton("+");
+            btnAdd.setFont(MainInventory.PoppinsBold.deriveFont(30f));
+            btnAdd.setForeground(AppColors.darkRed);
+            btnAdd.setContentAreaFilled(false);
+            btnAdd.setBorderPainted(false);
+            btnAdd.setFocusPainted(false);
+            btnAdd.setOpaque(false);
 
             JButton deduct= new JButton("-");
             deduct.setFont(MainInventory.PoppinsBold.deriveFont(30f));
@@ -102,10 +118,36 @@ public class EditProductPage {
             trash.setOpaque(false);
             //end of trash icon
 
+            btnAdd.addActionListener((e ->{
+                int current= Integer.parseInt(quantity.getText());
+                quantity.setText(String.valueOf(current+1));
+            }));
+
+            deduct.addActionListener(e->{
+                if(Integer.parseInt(quantity.getText()) > 0){
+                    int current= Integer.parseInt(quantity.getText());
+                    quantity.setText(String.valueOf(current-1));
+                }else{
+                    JOptionPane.showMessageDialog(this, "Quantity cannot be negative", "Error!", JOptionPane.ERROR_MESSAGE);
+                }
+            });
+
+            trash.addActionListener(e ->{
+                // remove from database
+                ProductsDatabase.deleteProduct(p.name);
+
+                // remove from products list
+                products.remove(p);
+
+                listPanel.remove(roundedRows);
+                listPanel.revalidate(); //tells the layout manager that changes have been made for it to update the layout
+                listPanel.repaint(); //makes the program refresh visually
+            });
+
             rightSide.add(trash);
             rightSide.add(deduct);
             rightSide.add(quantity);
-            rightSide.add(add);
+            rightSide.add(btnAdd);
 
             indivProducts.add(rightSide, BorderLayout.EAST);
 
@@ -119,7 +161,31 @@ public class EditProductPage {
 
         editProductDialog.add(scrollPane, BorderLayout.CENTER);
 
+        bottomPanel= new JPanel();
+        bottomPanel.setBackground(AppColors.pinkishOrange);
+
+        btnSave= new RoundedButton("Save Changes", 60);
+        btnSave.setBackground(AppColors.pinkishOrange);
+        btnSave.setPreferredSize(new Dimension(150, 40));
+        btnSave.setForeground(AppColors.darkRed);
+        btnSave.setFont(MainInventory.PoppinsRegular.deriveFont(15f));
+        bottomPanel.add(btnSave);
+
+        editProductDialog.add(bottomPanel, BorderLayout.SOUTH);
+
+        btnSave.addActionListener(e->{
+            for (int i=0; i<products.size(); i++){
+                String newName= nameFields.get(i).getText().trim();
+                int newQty= Integer.parseInt(quantityFields.get(i).getText().trim());
+
+                ProductsDatabase.Product updated= new ProductsDatabase.Product(newName, newQty, products.get(i).imagePath);
+
+                ProductsDatabase.updateProduct(products.get(i).name, updated);
+            }
+            parentFrame.loadProductCards();
+            editProductDialog.dispose();
+        });
+
         editProductDialog.setVisible(true);
     }
-
 }

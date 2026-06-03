@@ -3,8 +3,9 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.Font;
 import java.awt.FontFormatException;
-import java.awt.Graphics;
 import java.io.IOException;
+import java.util.*;
+import java.util.List;
 
 public class MainInventory extends JFrame implements ActionListener{
     //external fonts used in the program
@@ -87,7 +88,6 @@ public class MainInventory extends JFrame implements ActionListener{
         searchPanel.setBackground(AppColors.pinkishOrange);
 
         searchBox = new JTextField(20);
-        searchBox.setText("SEARCH");
         searchBox.setForeground(AppColors.darkRed);
         searchBox.setFont(new Font("PoppinsRegular", Font.PLAIN, 15));
         searchBox.setOpaque(false);
@@ -115,7 +115,7 @@ public class MainInventory extends JFrame implements ActionListener{
         editProd.setBackground(AppColors.pinkishOrange);
         editProd.setFont(new Font("PoppinsBold", Font.PLAIN, 15));
 
-        addProd = new RoundedButton("+ ADD PRODUCT", 60);
+        addProd = new RoundedButton("ADD PRODUCT", 60);
         addProd.setPreferredSize(new Dimension(180, 50));
         addProd.setForeground(AppColors.darkRed);
         addProd.setBackground(AppColors.pinkishOrange);
@@ -141,38 +141,7 @@ public class MainInventory extends JFrame implements ActionListener{
         productsPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
 
-        //PRODUCT CARDS
-        for (int i = 1; i <= 12; i++) {
-
-            RoundedPanel card = new RoundedPanel(50);
-            card.setPreferredSize(new Dimension(150, 150));
-            card.setBackground(AppColors.lightPinkishOrange);
-
-            card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
-
-            JLabel image = new JLabel("IMAGE");
-            image.setFont(new Font("PoppinsRegular", Font.PLAIN, 18));
-            image.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-            JLabel name = new JLabel("Product Name");
-            name.setFont(new Font("PoppinsBold", Font.BOLD, 18));
-            name.setForeground(AppColors.darkRed);
-            name.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-            JLabel amount = new JLabel("Amount");
-            amount.setFont(new Font("PoppinsRegular", Font.PLAIN, 18));
-            amount.setForeground(AppColors.darkRed);
-            amount.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-            card.add(Box.createVerticalStrut(20));
-            card.add(image);
-            card.add(Box.createVerticalStrut(40));
-            card.add(name);
-            card.add(amount);
-            card.setDrawBorder(false);
-
-            productsPanel.add(card);
-        }
+        loadProductCards();
 
 
         // ================= SCROLLPANE =================
@@ -196,13 +165,97 @@ public class MainInventory extends JFrame implements ActionListener{
 
     }
 
+    public void loadProductCards() {
+        productsPanel.removeAll(); // Clear existing cards first
+
+        List<ProductsDatabase.Product> products = ProductsDatabase.loadProducts();
+
+        if (products.isEmpty()) {
+            // Show a placeholder message when no products exist yet
+            JLabel empty = new JLabel("No products yet");
+            empty.setForeground(AppColors.darkRed);
+            empty.setFont(new Font("PoppinsRegular", Font.PLAIN, 20));
+            empty.setHorizontalAlignment(SwingConstants.CENTER);
+            productsPanel.setLayout(new BorderLayout());
+            productsPanel.add(empty, BorderLayout.CENTER);
+        } else {
+            productsPanel.setLayout(new GridLayout(0, 4, 20, 20));
+            for (ProductsDatabase.Product p : products) {
+                RoundedPanel card = createProductCard(p);
+
+                JPanel wrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
+                wrapper.add(card);
+
+                productsPanel.add(wrapper);
+
+                wrapper.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+            }
+        }
+
+        productsPanel.revalidate();
+        productsPanel.repaint();
+    }
+
+    // Build one product card from a Product object
+    private RoundedPanel createProductCard(ProductsDatabase.Product product) {
+        RoundedPanel card = new RoundedPanel(50);
+        card.setPreferredSize(new Dimension(180, 180));
+        //card.setMaximumSize(new Dimension(180, 180));
+        card.setMinimumSize(new Dimension(180, 180));
+        card.setBackground(AppColors.lightPinkishOrange);
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+
+        // Show image or a default placeholder label
+        if (!product.imagePath.equals("DEFAULT")) {
+            ImageIcon icon = new ImageIcon(product.imagePath);
+            Image scaled = icon.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
+            JLabel image = new JLabel(new ImageIcon(scaled));
+            image.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
+            image.setAlignmentX(Component.CENTER_ALIGNMENT);
+            card.add(Box.createVerticalStrut(10));
+            card.add(image);
+        } else {
+            JLabel image = new JLabel("🍞"); // Default bakery icon
+            image.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 70));
+            image.setForeground(AppColors.pinkishOrange);
+            image.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
+            image.setAlignmentX(Component.CENTER_ALIGNMENT);
+            card.add(Box.createVerticalStrut(15));
+            card.add(image);
+        }
+
+        JLabel name = new JLabel(product.name);
+        name.setFont(MainInventory.LazyDog.deriveFont(15f));
+        name.setForeground(AppColors.darkRed);
+        name.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel amount = new JLabel("Stocks: " + product.quantity);
+        amount.setFont(MainInventory.PoppinsRegular.deriveFont(15f));
+        amount.setForeground(AppColors.darkRed);
+        amount.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        card.add(Box.createVerticalStrut(10));
+        card.add(Box.createHorizontalStrut(0));
+        card.add(name);
+        card.add(amount);
+        card.setDrawBorder(false);
+
+        return card;
+    }
+
     public void actionPerformed(ActionEvent e){
         if (e.getSource().equals(addProd)){
-            new AddProductPage();
+            new AddProductPage(this);
         }
 
         if (e.getSource().equals(editProd)){
-            new EditProductPage();
+            List<ProductsDatabase.Product> products = ProductsDatabase.loadProducts();
+
+            if (!products.isEmpty()){
+                new EditProductPage(this);
+            }else{
+                JOptionPane.showMessageDialog(this, "No existing products yet!", "Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 
