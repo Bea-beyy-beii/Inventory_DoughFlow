@@ -106,11 +106,11 @@ public class AddProductPage extends JFrame implements ActionListener, KeyListene
         addProductDialog.add(uploadPanel);
         addProductDialog.add(donePanel);
 
+        addProductDialog.setModal(true);
         addProductDialog.setVisible(true);
     }
 
     public void actionPerformed(ActionEvent e){
-        // Inside actionPerformed, replace the done button logic:
         if (e.getSource().equals(done)) {
             String name = enterProductName.getText().trim();
             String qtyText = enterInitQuantity.getText().trim();

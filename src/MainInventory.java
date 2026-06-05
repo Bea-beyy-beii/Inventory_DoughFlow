@@ -1,4 +1,6 @@
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.Font;
@@ -7,7 +9,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.List;
 
-public class MainInventory extends JFrame implements ActionListener{
+public class MainInventory extends JPanel implements ActionListener, DocumentListener{
     //external fonts used in the program
     public static Font LazyDog;
     public static Font PoppinsBold;
@@ -26,7 +28,7 @@ public class MainInventory extends JFrame implements ActionListener{
         return new Font("SansSerif", Font.PLAIN, 12); // Default Font if error
     }
 
-    JPanel top, middle, productsPanel, mainContent;
+    JPanel top, middle, productsPanel, mainContent, overallPanel;
     JLabel inventory, doughflow;
     JTextField searchBox;
     RoundedButton editProd, addProd;
@@ -35,10 +37,10 @@ public class MainInventory extends JFrame implements ActionListener{
 
     MainInventory() {
 
-        setTitle("Inventory Page");
+        //setTitle("Inventory Page");
         setSize(925, 650);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
+        //setDefaultCloseOperation(EXIT_ON_CLOSE);
+        //setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
         // TOP PANEL: inventory and doughflow labels
@@ -157,38 +159,43 @@ public class MainInventory extends JFrame implements ActionListener{
 
         add(mainContent, BorderLayout.CENTER);
 
+        //final panel
+
+        overallPanel= new JPanel(new BorderLayout());
+        overallPanel.add(top, BorderLayout.NORTH);
+        overallPanel.add(mainContent, BorderLayout.CENTER);
 
         setVisible(true);
 
         addProd.addActionListener(this);
         editProd.addActionListener(this);
 
+        searchBox.getDocument().addDocumentListener(this);
+
     }
 
     public void loadProductCards() {
-        productsPanel.removeAll(); // Clear existing cards first
+        displayProducts(ProductsDatabase.loadProducts());
+    }
 
-        List<ProductsDatabase.Product> products = ProductsDatabase.loadProducts();
+    public void displayProducts(List<ProductsDatabase.Product> products) {
+        productsPanel.removeAll();
 
         if (products.isEmpty()) {
-            // Show a placeholder message when no products exist yet
-            JLabel empty = new JLabel("No products yet");
+            JLabel empty = new JLabel("No products found");
             empty.setForeground(AppColors.darkRed);
             empty.setFont(new Font("PoppinsRegular", Font.PLAIN, 20));
             empty.setHorizontalAlignment(SwingConstants.CENTER);
             productsPanel.setLayout(new BorderLayout());
             productsPanel.add(empty, BorderLayout.CENTER);
         } else {
-            productsPanel.setLayout(new GridLayout(0, 4, 20, 20));
+            productsPanel.setLayout(new GridLayout(0, 4, 0, 0));
             for (ProductsDatabase.Product p : products) {
                 RoundedPanel card = createProductCard(p);
-
                 JPanel wrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
                 wrapper.add(card);
-
-                productsPanel.add(wrapper);
-
                 wrapper.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+                productsPanel.add(wrapper);
             }
         }
 
@@ -208,19 +215,19 @@ public class MainInventory extends JFrame implements ActionListener{
         // Show image or a default placeholder label
         if (!product.imagePath.equals("DEFAULT")) {
             ImageIcon icon = new ImageIcon(product.imagePath);
-            Image scaled = icon.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
+            Image scaled = icon.getImage().getScaledInstance(90, 90, Image.SCALE_SMOOTH);
             JLabel image = new JLabel(new ImageIcon(scaled));
             image.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
             image.setAlignmentX(Component.CENTER_ALIGNMENT);
             card.add(Box.createVerticalStrut(10));
             card.add(image);
         } else {
-            JLabel image = new JLabel("🍞"); // Default bakery icon
-            image.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 70));
-            image.setForeground(AppColors.pinkishOrange);
+            ImageIcon icon = new ImageIcon("cake_default.png");
+            Image scaled = icon.getImage().getScaledInstance(100, 90, Image.SCALE_SMOOTH);
+            JLabel image = new JLabel(new ImageIcon(scaled));
             image.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
             image.setAlignmentX(Component.CENTER_ALIGNMENT);
-            card.add(Box.createVerticalStrut(15));
+            card.add(Box.createVerticalStrut(10));
             card.add(image);
         }
 
@@ -243,6 +250,20 @@ public class MainInventory extends JFrame implements ActionListener{
         return card;
     }
 
+    public void filterProducts(){
+        String query= searchBox.getText().trim().toLowerCase();
+        List<ProductsDatabase.Product> all = ProductsDatabase.loadProducts();
+
+        List<ProductsDatabase.Product> filtered = new ArrayList<>();
+        for (ProductsDatabase.Product p : all) {
+            if (p.name.toLowerCase().contains(query)) {
+                filtered.add(p);
+            }
+        }
+
+        displayProducts(filtered);
+    }
+
     public void actionPerformed(ActionEvent e){
         if (e.getSource().equals(addProd)){
             new AddProductPage(this);
@@ -257,6 +278,21 @@ public class MainInventory extends JFrame implements ActionListener{
                 JOptionPane.showMessageDialog(this, "No existing products yet!", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
+    }
+
+    @Override
+    public void insertUpdate(DocumentEvent e) {
+        filterProducts();
+    }
+
+    @Override
+    public void removeUpdate(DocumentEvent e) {
+        filterProducts();
+    }
+
+    @Override
+    public void changedUpdate(DocumentEvent e) {
+        filterProducts();
     }
 
     public static void main(String[] args) {

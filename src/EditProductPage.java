@@ -2,7 +2,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class EditProductPage extends JFrame{
     private MainInventory parentFrame;
@@ -12,12 +14,12 @@ public class EditProductPage extends JFrame{
     JScrollPane scrollPane;
     JLabel title;
     JPanel header,listPanel, bottomPanel;
-    RoundedPanel roundedRows;
     RoundedButton btnSave;
 
     List <ProductsDatabase.Product> products= ProductsDatabase.loadProducts(); //outer.inner var= new outer.inner();
     List<JTextField> nameFields = new ArrayList<>(); //for update checking
     List<JTextField> quantityFields = new ArrayList<>(); //for update checking
+    Set<String> markedForDeletion = new HashSet<>(); //for accurate deleting
 
     EditProductPage(MainInventory parent){
         this.parentFrame=parent;
@@ -43,6 +45,7 @@ public class EditProductPage extends JFrame{
         listPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         for (ProductsDatabase.Product p: products){
+            RoundedPanel roundedRows; //fixed delete bug by moving this inside the loop (no more overwriting)
             //roundedRows serve as the oblong that contains each product's details
             roundedRows= new RoundedPanel(60);
             roundedRows.setLayout(new BorderLayout());
@@ -133,15 +136,14 @@ public class EditProductPage extends JFrame{
             });
 
             trash.addActionListener(e ->{
-                // remove from database
-                ProductsDatabase.deleteProduct(p.name);
-
-                // remove from products list
-                products.remove(p);
-
-                listPanel.remove(roundedRows);
-                listPanel.revalidate(); //tells the layout manager that changes have been made for it to update the layout
-                listPanel.repaint(); //makes the program refresh visually
+                    if (markedForDeletion.contains(p.name)) {
+                        // clicking trash again = undo
+                        markedForDeletion.remove(p.name);
+                        roundedRows.setBackground(AppColors.lightPinkishOrange); // visual feedback
+                    } else {
+                        markedForDeletion.add(p.name);
+                        roundedRows.setBackground(Color.lightGray);   // visual feedback
+                    }
             });
 
             rightSide.add(trash);
@@ -174,18 +176,22 @@ public class EditProductPage extends JFrame{
         editProductDialog.add(bottomPanel, BorderLayout.SOUTH);
 
         btnSave.addActionListener(e->{
+            for (String name : markedForDeletion) {
+                ProductsDatabase.deleteProduct(name);
+            }
+
             for (int i=0; i<products.size(); i++){
                 String newName= nameFields.get(i).getText().trim();
                 int newQty= Integer.parseInt(quantityFields.get(i).getText().trim());
 
                 ProductsDatabase.Product updated= new ProductsDatabase.Product(newName, newQty, products.get(i).imagePath);
-
                 ProductsDatabase.updateProduct(products.get(i).name, updated);
             }
             parentFrame.loadProductCards();
             editProductDialog.dispose();
         });
 
+        editProductDialog.setModal(true);
         editProductDialog.setVisible(true);
     }
 }
