@@ -61,7 +61,7 @@ public class MainInventory extends JPanel implements ActionListener, DocumentLis
         top.add(inventory, BorderLayout.WEST);
         top.add(doughflow, BorderLayout.EAST);
 
-        add(top, BorderLayout.NORTH);
+        //add(top, BorderLayout.NORTH);
 
 
         // MAIN CONTENTS: middle panel and products panel
@@ -157,7 +157,7 @@ public class MainInventory extends JPanel implements ActionListener, DocumentLis
         mainContent.add(middle, BorderLayout.NORTH);
         mainContent.add(scrollPane, BorderLayout.CENTER);
 
-        add(mainContent, BorderLayout.CENTER);
+        //add(mainContent, BorderLayout.CENTER);
 
         //final panel
 
